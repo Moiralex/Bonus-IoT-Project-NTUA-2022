@@ -11,6 +11,7 @@
 #define tx_buffer_size 128
 #define rx_buffer_size 128
 #define sensor_boards 1
+#define board_no 1
 
 #define FOSC 8000000 // Clock Speed gia thn seiriakh
 #define BAUD 9600
@@ -172,13 +173,13 @@ ISR(TIMER1_OVF_vect) {
             sendCommand(string_to_send);
             strcpy(string_to_send, "ESP:connect\n");
             sendCommand(string_to_send);
-            //strcpy(string_to_send, "ESP:clientTransmit\n");
-            //sendCommand(string_to_send);
-            strcpy(string_to_send, "ESP:getAllValues\n");
+            strcpy(string_to_send, "ESP:clientTransmit\n");
+            sendCommand(string_to_send);
+            strcpy(string_to_send, "ESP:getValue:\"Moist_Sensor\"\n");
             serialWrite(string_to_send);
-            //c=getChar();
+            
             while(usart_receive() != '"' && !failed) { //scan input till you find ". The number will follow
-               // c = getChar();
+               
             }
             c=usart_receive(); //read most significant digit
             if(c=='F')
@@ -198,6 +199,8 @@ ISR(TIMER1_OVF_vect) {
                 moistures[k]=atoi(conv_buffer);
             }
             
+            strcpy(string_to_send, "ESP:getValue:\"Tmp_Sensor\"\n");
+            serialWrite(string_to_send);
 
             //c=getChar();
 			counter = 0;
@@ -242,6 +245,12 @@ ISR(TIMER1_OVF_vect) {
 
         //strcpy(string_to_send, "ESP:ssid:\"Middle_Board1\"\n");
         //sendCommand(string_to_send);
+
+        strcpy(string_to_send, "ESP:ssid:\"Main_Board\"\n");
+        sendCommand(string_to_send);
+
+        strcpy(string_to_send, "ESP:password:\"awesomePassword\"\n");
+        sendCommand(string_to_send);
 
         /*itoa(moist_avg, conv_buffer, 10); //convert value calculated to string to send it to ESP
         strcpy(string_to_send, "ESP:sensorValue:\"Moist_avg\"["); //create the string to send to set the sensor value
@@ -302,8 +311,14 @@ int main(){
         temperatures[i]=0;
     }
 
+    usart_transmit('\n');
+    	
     strcpy(string_to_send, "ESP:restart\n");
-    sendCommand(string_to_send);
+    serialWrite(string_to_send);
+    	
+    usart_receive(); //wait until restart is complete
+    while(UCSRA&(1<<RXC))
+    usart_receive();
 
     strcpy(string_to_send, "ESP:addSensor:\"Moist_Sensor\"\n");
     sendCommand(string_to_send);
@@ -311,16 +326,16 @@ int main(){
     strcpy(string_to_send, "ESP:addSensor:\"Tmp_Sensor\"\n");
     sendCommand(string_to_send);
 
-    strcpy(string_to_send, "ESP:addSensor:\"Moist_avg\"\n");
+    sprintf(string_to_send, "ESP:addSensor:\"Moist_avg%d\"\n", board_no);
     sendCommand(string_to_send);
 
-    strcpy(string_to_send, "ESP:addSensor:\"Tmp_avg\"\n");
+    sprintf(string_to_send, "ESP:addSensor:\"Tmp_avg%d\"\n", board_no);
     sendCommand(string_to_send);
 
-    strcpy(string_to_send, "ESP:addSensor:\"Moist_var\"\n");
+    sprintf(string_to_send, "ESP:addSensor:\"Moist_var%d\"\n", board_no);
     sendCommand(string_to_send);
 
-    strcpy(string_to_send, "ESP:addSensor:\"Tmp_var\"\n");
+    sprintf(string_to_send, "ESP:addSensor:\"Tmp_var%d\"\n", board_no);
     sendCommand(string_to_send);
 
 
