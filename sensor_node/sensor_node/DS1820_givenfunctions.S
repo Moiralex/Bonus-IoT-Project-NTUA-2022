@@ -1,7 +1,4 @@
-﻿#include <avr/io.h>
-#define _SFR_ASM_COMPAT 1
-#define __SFR_OFFSET 0
-; File Name: one_wire.asm
+﻿; File Name: one_wire.asm
 ; Title: one wire protocol
 ; Target mcu: atmega16
 ; Development board: easyAVR6
@@ -17,6 +14,9 @@
 ; registers affected: r27:r26 ,r25:r24
 ; routines called: one_wire_receive_bit
 
+#include <avr/io.h>
+#define _SFR_ASM_COMPAT 1
+#define __SFR_OFFSET 0
 
 one_wire_receive_byte:
 ldi r27 ,8
@@ -179,10 +179,8 @@ rcall one_wire_transmit_byte
 
 notdone:
 rcall one_wire_receive_bit  ; LSB of r24 = 1 if read is complete
-;sbi PORTC, 0
 sbrs r24, 0
-rjmp notdone
-;cbi PORTC, 0
+jmp notdone
 
 rcall one_wire_reset
 sbrs r24, 0
@@ -217,5 +215,4 @@ ret
 nodevicedetected:
 ldi r25, 0x80
 ldi r24, 0x00
-out PORTC, 0x00
 ret

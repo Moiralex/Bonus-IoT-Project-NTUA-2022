@@ -170,23 +170,22 @@ ISR(TIMER1_OVF_vect) {
     ADMUX = 0x40; // Vref: Vcc(5V for easyAVR6) and analog input from PINA0 (moisture sensor)
     ADCSRA = ADCSRA | 0x40; // ADC Enable, ADC Interrupt Enable and f = CLK/128
 
-    TCNT1 = 3036;
+    //TCNT1 = 3036;
+	TCNT1 = 34286; //4s between interrupts
 }
 
 ISR(ADC_vect) {
 	PORTB=PORTB^0xFF;
     moist_sensor = ADCW;
-	//PORTC = moist_sensor & 0xFF;
     //tmp_sensor = readDS1820();
-	//PORTB=PORTB^0xFF;
-	//tmp_sensor=20;
+	tmp_sensor=20;
     if((tmp_sensor&0xFF00)==0xFF00){ //if temperature is negative convert it to the corresponding value
         tmp_sensor--;
         tmp_sensor = tmp_sensor&0x00FF;
         tmp_sensor = tmp_sensor^0x00FF;
         tmp_sensor = -tmp_sensor;
     }
-    tmp_sensor = 20;
+    
     //for debugging
 	lcd_clear();
 	
@@ -216,7 +215,6 @@ int main(){
 	
 	DDRD=0xFF; //for debugging for lcd
     
-	//DDRC= 0xFF; //PORTC output for debugging
 	//UBRRH = (ubrr_content >> 8); //set USART Baud Rate Register
     //UBRRL = ubrr_content;
     
@@ -231,7 +229,8 @@ int main(){
 	
 
     TCCR1B = 0x05; //CK/1024
-	TCNT1 = 3036; //8s between interrupts
+	//TCNT1 = 3036; //8s between interrupts
+	TCNT1 = 34286; //4s between interrupts
 	TIMSK = 0x04; //enable overflow interrupt for TCNT1
 
     ADCSRA = (1<<ADEN)|(1<<ADPS2)|(1<<ADPS1)|(1<<ADPS0)|(1<<ADIE); //ADC enable, frequency = CLK/128 and enable interrupts
@@ -261,6 +260,8 @@ int main(){
 
     strcpy(string_to_send, "ESP:APStart\n");
     sendCommand(string_to_send);
+
+    
 
     sei();
 	PORTB=0xFF;

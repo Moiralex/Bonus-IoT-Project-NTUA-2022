@@ -15,19 +15,19 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   5 .debug_aranges 00000078  00000000  00000000  00001410  2**3
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_info   00000a0f  00000000  00000000  00001488  2**0
+  6 .debug_info   000009cb  00000000  00000000  00001488  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_abbrev 0000067b  00000000  00000000  00001e97  2**0
+  7 .debug_abbrev 0000067b  00000000  00000000  00001e53  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_line   0000075f  00000000  00000000  00002512  2**0
+  8 .debug_line   00000749  00000000  00000000  000024ce  2**0
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_frame  00000180  00000000  00000000  00002c74  2**2
+  9 .debug_frame  00000180  00000000  00000000  00002c18  2**2
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_str    0000042c  00000000  00000000  00002df4  2**0
+ 10 .debug_str    000003e8  00000000  00000000  00002d98  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_loc    0000041d  00000000  00000000  00003220  2**0
+ 11 .debug_loc    0000041d  00000000  00000000  00003180  2**0
                   CONTENTS, READONLY, DEBUGGING
- 12 .debug_ranges 00000060  00000000  00000000  0000363d  2**0
+ 12 .debug_ranges 00000060  00000000  00000000  0000359d  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -619,7 +619,7 @@ ISR(TIMER1_OVF_vect) {
 	
 	//PORTB=0xFF;
     if(!first) {
-     376:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__data_start>
+     376:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
      37a:	81 11       	cpse	r24, r1
      37c:	3b c0       	rjmp	.+118    	; 0x3f4 <__vector_8+0xa6>
         /*itoa(moist_sensor, conv_buffer, 10); //convert value read to string to send it to ESP
@@ -689,7 +689,7 @@ ISR(TIMER1_OVF_vect) {
     }
     else
         first=false;
-     3f4:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <__data_start>
+     3f4:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <__DATA_REGION_ORIGIN__>
     ADMUX = 0x40; // Vref: Vcc(5V for easyAVR6) and analog input from PINA0 (moisture sensor)
      3f8:	80 e4       	ldi	r24, 0x40	; 64
      3fa:	87 b9       	out	0x07, r24	; 7
@@ -698,9 +698,10 @@ ISR(TIMER1_OVF_vect) {
      3fe:	80 64       	ori	r24, 0x40	; 64
      400:	86 b9       	out	0x06, r24	; 6
 
-    TCNT1 = 3036;
-     402:	8c ed       	ldi	r24, 0xDC	; 220
-     404:	9b e0       	ldi	r25, 0x0B	; 11
+    //TCNT1 = 3036;
+	TCNT1 = 34286; //4s between interrupts
+     402:	8e ee       	ldi	r24, 0xEE	; 238
+     404:	95 e8       	ldi	r25, 0x85	; 133
      406:	9d bd       	out	0x2d, r25	; 45
      408:	8c bd       	out	0x2c, r24	; 44
 }
@@ -753,16 +754,16 @@ ISR(ADC_vect) {
      45a:	95 b1       	in	r25, 0x05	; 5
      45c:	90 93 9f 02 	sts	0x029F, r25	; 0x80029f <moist_sensor+0x1>
      460:	80 93 9e 02 	sts	0x029E, r24	; 0x80029e <moist_sensor>
-        tmp_sensor--;
-        tmp_sensor = tmp_sensor&0x00FF;
-        tmp_sensor = tmp_sensor^0x00FF;
-        tmp_sensor = -tmp_sensor;
-    }
-    tmp_sensor = 20;
+    //tmp_sensor = readDS1820();
+	tmp_sensor=20;
      464:	84 e1       	ldi	r24, 0x14	; 20
      466:	90 e0       	ldi	r25, 0x00	; 0
      468:	90 93 99 01 	sts	0x0199, r25	; 0x800199 <tmp_sensor+0x1>
      46c:	80 93 98 01 	sts	0x0198, r24	; 0x800198 <tmp_sensor>
+        tmp_sensor = tmp_sensor^0x00FF;
+        tmp_sensor = -tmp_sensor;
+    }
+    
     //for debugging
 	lcd_clear();
      470:	0e 94 07 01 	call	0x20e	; 0x20e <lcd_clear>
@@ -797,7 +798,7 @@ int main(){
 
     first = true;
      496:	81 e0       	ldi	r24, 0x01	; 1
-     498:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__data_start>
+     498:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
     moist_sensor=tmp_sensor=0;
      49c:	10 92 99 01 	sts	0x0199, r1	; 0x800199 <tmp_sensor+0x1>
      4a0:	10 92 98 01 	sts	0x0198, r1	; 0x800198 <tmp_sensor>
@@ -820,9 +821,10 @@ int main(){
     TCCR1B = 0x05; //CK/1024
      4b4:	85 e0       	ldi	r24, 0x05	; 5
      4b6:	8e bd       	out	0x2e, r24	; 46
-	TCNT1 = 3036; //8s between interrupts
-     4b8:	8c ed       	ldi	r24, 0xDC	; 220
-     4ba:	9b e0       	ldi	r25, 0x0B	; 11
+	//TCNT1 = 3036; //8s between interrupts
+	TCNT1 = 34286; //4s between interrupts
+     4b8:	8e ee       	ldi	r24, 0xEE	; 238
+     4ba:	95 e8       	ldi	r25, 0x85	; 133
      4bc:	9d bd       	out	0x2d, r25	; 45
      4be:	8c bd       	out	0x2c, r24	; 44
 	TIMSK = 0x04; //enable overflow interrupt for TCNT1
@@ -936,6 +938,8 @@ int main(){
      562:	88 e1       	ldi	r24, 0x18	; 24
      564:	91 e0       	ldi	r25, 0x01	; 1
      566:	0e 94 7a 01 	call	0x2f4	; 0x2f4 <sendCommand>
+
+    
 
     sei();
      56a:	78 94       	sei
