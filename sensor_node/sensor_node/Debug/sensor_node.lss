@@ -619,7 +619,7 @@ ISR(TIMER1_OVF_vect) {
 	
 	//PORTB=0xFF;
     if(!first) {
-     376:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__DATA_REGION_ORIGIN__>
+     376:	80 91 60 00 	lds	r24, 0x0060	; 0x800060 <__data_start>
      37a:	81 11       	cpse	r24, r1
      37c:	3b c0       	rjmp	.+118    	; 0x3f4 <__vector_8+0xa6>
         /*itoa(moist_sensor, conv_buffer, 10); //convert value read to string to send it to ESP
@@ -689,7 +689,7 @@ ISR(TIMER1_OVF_vect) {
     }
     else
         first=false;
-     3f4:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <__DATA_REGION_ORIGIN__>
+     3f4:	10 92 60 00 	sts	0x0060, r1	; 0x800060 <__data_start>
     ADMUX = 0x40; // Vref: Vcc(5V for easyAVR6) and analog input from PINA0 (moisture sensor)
      3f8:	80 e4       	ldi	r24, 0x40	; 64
      3fa:	87 b9       	out	0x07, r24	; 7
@@ -797,7 +797,7 @@ int main(){
 
     first = true;
      496:	81 e0       	ldi	r24, 0x01	; 1
-     498:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__DATA_REGION_ORIGIN__>
+     498:	80 93 60 00 	sts	0x0060, r24	; 0x800060 <__data_start>
     moist_sensor=tmp_sensor=0;
      49c:	10 92 99 01 	sts	0x0199, r1	; 0x800199 <tmp_sensor+0x1>
      4a0:	10 92 98 01 	sts	0x0198, r1	; 0x800198 <tmp_sensor>
