@@ -171,7 +171,7 @@ ISR(TIMER1_OVF_vect) {
 			/*
             sprintf(string_to_send, "ESP:ssid:\"Middle_Board%d\"\n", k);
             strcpy(string_to_send, "ESP:password:\"awesomePassword\"\n");
-            sendCommand(string_to_send);*/
+            sendCommand(string_to_send);
             strcpy(string_to_send, "ESP:sensorValue:\"Moist_avg\"[request]\n");
             sendCommand(string_to_send);
             strcpy(string_to_send, "ESP:sensorValue:\"Tmp_avg\"[request]\n");
@@ -180,10 +180,10 @@ ISR(TIMER1_OVF_vect) {
             sendCommand(string_to_send);
             strcpy(string_to_send, "ESP:sensorValue:\"Tmp_var\"[request]\n");
             sendCommand(string_to_send);
-            //strcpy(string_to_send, "ESP:connect\n"); //will wait until it can connect
-            //sendCommand(string_to_send);
-            //strcpy(string_to_send, "ESP:clientTransmit\n");
-            //sendCommand(string_to_send);
+            strcpy(string_to_send, "ESP:connect\n"); //will wait until it can connect
+            sendCommand(string_to_send);
+            strcpy(string_to_send, "ESP:clientTransmit\n");
+            sendCommand(string_to_send);*/
             strcpy(string_to_send, "ESP:getAllValues\n");
             serialWrite(string_to_send);
 
@@ -208,7 +208,7 @@ ISR(TIMER1_OVF_vect) {
                 moist_avgs[k]=atoi(conv_buffer);
             }
             
-
+			counter =0;
             while(usart_receive() != '"') { //scan input till you find ". The number will follow
                // c = getChar();
             }
@@ -230,7 +230,7 @@ ISR(TIMER1_OVF_vect) {
                 tmp_avgs[k]=atof(conv_buffer);
             }
             
-            
+            counter =0;
             while(usart_receive() != '"') { //scan input till you find ". The number will follow
                // c = getChar();
             }
@@ -252,7 +252,7 @@ ISR(TIMER1_OVF_vect) {
                 moist_vars[k]=atoi(conv_buffer);
             }
             
-
+			counter =0;
             while(usart_receive() != '"') { //scan input till you find ". The number will follow
                // c = getChar();
             }
