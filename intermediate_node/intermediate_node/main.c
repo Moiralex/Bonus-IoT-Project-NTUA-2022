@@ -72,8 +72,8 @@ void sendCommand(char command[]) {
 	//print(c); //debug
 	while(c!='S'){ //wait until "success" reply from esp
 		if(c=='F') { //if command execution failed re-transmit it
-			for(int i=0; i<5; ++i)
-			usart_receive(); //flush fail out of read buffer
+			while(UCSRA&(1<<RXC))
+				usart_receive(); //flush fail out of read buffer
 			//PORTB=0xFF;
 			//PORTB=0x00;
 			serialWrite(command);
@@ -81,9 +81,8 @@ void sendCommand(char command[]) {
 		c=usart_receive();
 	}
 	//PORTB=0xFF;
-	for(int i=0; i<8; ++i)
-	//print(c);
-	usart_receive(); //flush success out of read buffer
+	while(UCSRA&(1<<RXC))
+		usart_receive(); //flush success out of read buffer
 }
 
 void wait_ServedClient() {
@@ -92,8 +91,8 @@ void wait_ServedClient() {
     while(c!='S') {
         c=usart_receive();
     }
-    for(int i=0; i<12; ++i)
-        usart_receive(); //flush ServedClient out of read buffer
+    while(UCSRA&(1<<RXC))
+		usart_receive(); //flush ServedClient out of read buffer
 }
 
 ISR(TIMER1_OVF_vect) {
@@ -119,7 +118,7 @@ ISR(TIMER1_OVF_vect) {
 			//PORTB=0x00;
             strcpy(string_to_send, "ESP:sensorValue:\"Moist_Sensor\"[request]\n");
             sendCommand(string_to_send);
-			//PORTB=0x00;
+			PORTB=0x00;
             strcpy(string_to_send, "ESP:sensorValue:\"Tmp_Sensor\"[request]\n");
             sendCommand(string_to_send);
 			//PORTB=0xFF;
